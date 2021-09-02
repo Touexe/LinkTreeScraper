@@ -14,6 +14,7 @@ class Link:
 class LinktreeUser:
     username : str
     url : Optional[str]
+    avartar_image : Optional[str]
     id : int
     tier : str
     isActive : bool
@@ -116,6 +117,7 @@ class Linktree(object):
         JSON_INFO = await self.getUserInfoJSON(url = url, username= username)
         account = JSON_INFO["account"]
         username = account["username"]
+        avatar_image = account["profilePictureUrl"]
         url = f"https://linktr.ee/{username}" if url is None else url 
         id = account["id"]
         tier  = account["tier"]
@@ -128,6 +130,7 @@ class Linktree(object):
         
         return LinktreeUser(username = username,
                             url = url,
+                            avartar_image= avatar_image,
                             id = id,
                             tier = tier,
                             isActive = isActive,
@@ -138,6 +141,8 @@ class Linktree(object):
 
     
 async def main():
+    # url = "https://linktr.ee/Pale_but_peachy"
+    
     if len(sys.argv) < 2:
         print("Username or url is needed!")
         sys.exit(1)
@@ -152,6 +157,7 @@ async def main():
     user_info = await linktree.getLinktreeUserInfo(username = username, 
                                                     url= url)
     print(f"username : {user_info.username}")
+    print(f"avatar image: {user_info.avartar_image}")
     print(f"tier : {user_info.tier}")
     print(f"isActive : {user_info.isActive}")
     print(f"descripition : {user_info.description}")
@@ -166,3 +172,4 @@ async def main():
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
+
