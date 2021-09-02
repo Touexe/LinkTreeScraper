@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import List, Union, Optional, Any
+from typing import List, Union, Optional
+import sys
 import asyncio
 import aiohttp
-import os
 from bs4 import BeautifulSoup
 import json
 
@@ -38,7 +38,7 @@ class Linktree(object):
         await session.close()
         return content
             
-    async def getUserInfoJSON(self, source = None,  url : Optional[str] = None, username : Optional[str] = None):
+    async def getUserInfoJSON(self, source = None,  url : Optional[str] = None, username : Optional[str] = None):            
         if url is None and username:
             url = f"https://linktr.ee/{username}"
 
@@ -109,6 +109,10 @@ class Linktree(object):
         return links
 
     async def getLinktreeUserInfo(self, url : Optional[str] = None, username : Optional[str] = None)-> LinktreeUser:
+        if url is None and username is None:
+            print("Please pass linktree username or url.")
+            return
+
         JSON_INFO = await self.getUserInfoJSON(url = url, username= username)
         account = JSON_INFO["account"]
         username = account["username"]
@@ -134,13 +138,31 @@ class Linktree(object):
 
     
 async def main():
+    if len(sys.argv) < 2:
+        print("Username or url is needed!")
+        sys.exit(1)
+
+    input = sys.argv[1]
+    if "linktr.ee" in input:
+        username, url = None, input
+    else:
+        username, url = input, None
+
     linktree = Linktree()
-    url = "https://linktr.ee/Pale_but_peachy"
-    user_info = await linktree.getLinktreeUserInfo(url= url)
-    print(user_info)
+    user_info = await linktree.getLinktreeUserInfo(username = username, 
+                                                    url= url)
+    print(f"username : {user_info.username}")
+    print(f"tier : {user_info.tier}")
+    print(f"isActive : {user_info.isActive}")
+    print(f"descripition : {user_info.description}")
+    print(f"createdAt : {user_info.createdAt}")
+    print(f"updatedAt : {user_info.updatedAt}")
+
+    print("\nLinks:")
+    for link in user_info.links:
+        print(link.url)
         
 
-
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
-
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())
