@@ -1,5 +1,5 @@
 # LinkTreeScraper
-Scraping Linktree user's information and links.
+Scraping Linktree user's information and links using python.
 
 # Installation
 
